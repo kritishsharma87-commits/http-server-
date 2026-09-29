@@ -1,0 +1,1412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <meta name="description"
+          content="A simple high-performance HTTP server built in C">
+
+    <title>C Server — Simple. Fast. Powerful.</title>
+
+<script></script>
+<style>/* =========================================
+   SCROLL ANIMATIONS
+========================================= */
+
+.feature-card,
+.technology-item,
+.request-demo {
+    opacity: 0;
+    transform: translateY(25px);
+
+    transition:
+        opacity 0.7s ease,
+        transform 0.7s ease;
+}
+
+.feature-card.visible,
+.technology-item.visible,
+.request-demo.visible {
+    opacity: 1;
+
+    transform: translateY(0);
+}</style>
+  <style> /* =========================================
+   GLOBAL SETTINGS
+========================================= */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "SF Pro Display",
+        "SF Pro Text",
+        "Helvetica Neue",
+        Arial,
+        sans-serif;
+
+    background: #ffffff;
+    color: #1d1d1f;
+
+    line-height: 1.5;
+
+    -webkit-font-smoothing: antialiased;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+button {
+    font-family: inherit;
+}
+
+
+/* =========================================
+   NAVIGATION
+========================================= */
+
+.navbar {
+    width: 100%;
+
+    position: sticky;
+    top: 0;
+
+    z-index: 1000;
+
+    background: rgba(255, 255, 255, 0.88);
+
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.nav-container {
+    max-width: 1200px;
+
+    margin: auto;
+
+    height: 64px;
+
+    padding: 0 24px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+}
+
+.logo {
+    width: 32px;
+    height: 32px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: #1d1d1f;
+
+    color: white;
+
+    font-size: 17px;
+
+    font-weight: 700;
+}
+
+.nav-links {
+    display: flex;
+
+    align-items: center;
+
+    gap: 34px;
+}
+
+.nav-links a {
+    font-size: 14px;
+
+    color: #555;
+
+    transition: color 0.25s ease;
+}
+
+.nav-links a:hover {
+    color: #000;
+}
+
+.nav-button {
+    padding: 9px 18px;
+
+    border-radius: 999px;
+
+    background: #1d1d1f;
+
+    color: white;
+
+    font-size: 13px;
+
+    transition: transform 0.25s ease,
+                background 0.25s ease;
+}
+
+.nav-button:hover {
+    transform: scale(1.04);
+
+    background: #333;
+}
+
+
+/* =========================================
+   HERO
+========================================= */
+
+.hero {
+    min-height: calc(100vh - 64px);
+
+    max-width: 1200px;
+
+    margin: auto;
+
+    padding: 100px 24px 80px;
+
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    align-items: center;
+
+    gap: 60px;
+}
+
+.hero-content {
+    max-width: 580px;
+}
+
+.eyebrow {
+    font-size: 13px;
+
+    font-weight: 600;
+
+    letter-spacing: 0.12em;
+
+    color: #777;
+
+    margin-bottom: 20px;
+}
+
+.hero h1 {
+    font-size: clamp(60px, 8vw, 105px);
+
+    line-height: 0.92;
+
+    letter-spacing: -0.055em;
+
+    font-weight: 700;
+
+    margin-bottom: 35px;
+}
+
+.hero-description {
+    max-width: 470px;
+
+    font-size: 20px;
+
+    line-height: 1.5;
+
+    color: #6e6e73;
+
+    margin-bottom: 35px;
+}
+
+
+/* =========================================
+   BUTTONS
+========================================= */
+
+.hero-buttons {
+    display: flex;
+
+    align-items: center;
+
+    gap: 20px;
+
+    flex-wrap: wrap;
+}
+
+.primary-button {
+    display: inline-block;
+
+    border: none;
+
+    cursor: pointer;
+
+    background: #1d1d1f;
+
+    color: white;
+
+    padding: 14px 25px;
+
+    border-radius: 999px;
+
+    font-size: 15px;
+
+    transition:
+        transform 0.25s ease,
+        background 0.25s ease;
+}
+
+.primary-button:hover {
+    background: #333;
+
+    transform: translateY(-2px);
+}
+
+.secondary-button {
+    color: #06c;
+
+    font-size: 15px;
+
+    transition: opacity 0.2s ease;
+}
+
+.secondary-button:hover {
+    opacity: 0.65;
+}
+
+
+/* =========================================
+   SERVER VISUAL
+========================================= */
+
+.server-visual {
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+}
+
+.server-card {
+    width: min(500px, 100%);
+
+    border-radius: 24px;
+
+    overflow: hidden;
+
+    background: #f5f5f7;
+
+    box-shadow:
+        0 30px 80px rgba(0, 0, 0, 0.12),
+        0 10px 30px rgba(0, 0, 0, 0.06);
+
+    transform: rotate(1deg);
+
+    transition:
+        transform 0.5s ease,
+        box-shadow 0.5s ease;
+}
+
+.server-card:hover {
+    transform: rotate(0deg) translateY(-8px);
+
+    box-shadow:
+        0 40px 100px rgba(0, 0, 0, 0.15);
+}
+
+.server-top {
+    height: 58px;
+
+    display: flex;
+
+    align-items: center;
+
+    padding: 0 20px;
+
+    border-bottom: 1px solid #ddd;
+}
+
+.window-buttons {
+    display: flex;
+
+    gap: 7px;
+}
+
+.window-buttons span {
+    width: 11px;
+    height: 11px;
+
+    border-radius: 50%;
+
+    background: #c7c7c7;
+}
+
+.server-title {
+    flex: 1;
+
+    text-align: center;
+
+    font-size: 12px;
+
+    letter-spacing: 0.08em;
+
+    color: #777;
+}
+
+.server-screen {
+    min-height: 300px;
+
+    padding: 40px;
+
+    background: #111;
+
+    color: #ddd;
+
+    font-family:
+        "SFMono-Regular",
+        Consolas,
+        "Liberation Mono",
+        monospace;
+
+    font-size: 15px;
+}
+
+.terminal-line {
+    margin-bottom: 18px;
+}
+
+.green {
+    color: #34c759;
+}
+
+.blue {
+    color: #0a84ff;
+}
+
+
+/* =========================================
+   INTRO SECTION
+========================================= */
+
+.intro-section {
+    max-width: 900px;
+
+    margin: auto;
+
+    padding: 160px 24px;
+
+    text-align: center;
+}
+
+.intro-section h2,
+.product-content h2,
+.section-heading h2,
+.about-box h2 {
+    font-size: clamp(42px, 6vw, 72px);
+
+    line-height: 1.05;
+
+    letter-spacing: -0.045em;
+
+    margin-bottom: 30px;
+}
+
+.section-description {
+    max-width: 650px;
+
+    margin: auto;
+
+    font-size: 20px;
+
+    color: #6e6e73;
+
+    line-height: 1.6;
+}
+
+
+/* =========================================
+   FEATURES
+========================================= */
+
+.features-section {
+    background: #f5f5f7;
+
+    padding: 140px 24px;
+}
+
+.section-heading {
+    max-width: 1200px;
+
+    margin: auto auto 70px;
+}
+
+.features-grid {
+    max-width: 1200px;
+
+    margin: auto;
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, 1fr);
+
+    gap: 18px;
+}
+
+.feature-card {
+    background: white;
+
+    padding: 38px 30px;
+
+    min-height: 280px;
+
+    border-radius: 24px;
+
+    transition:
+        transform 0.3s ease,
+        box-shadow 0.3s ease;
+}
+
+.feature-card:hover {
+    transform: translateY(-8px);
+
+    box-shadow:
+        0 20px 50px rgba(0, 0, 0, 0.08);
+}
+
+.feature-icon {
+    width: 50px;
+    height: 50px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    background: #f5f5f7;
+
+    border-radius: 15px;
+
+    font-size: 20px;
+
+    margin-bottom: 30px;
+}
+
+.feature-card h3 {
+    font-size: 24px;
+
+    letter-spacing: -0.02em;
+
+    margin-bottom: 12px;
+}
+
+.feature-card p {
+    color: #6e6e73;
+
+    font-size: 15px;
+
+    line-height: 1.6;
+}
+
+
+/* =========================================
+   PRODUCT SECTION
+========================================= */
+
+.product-section {
+    max-width: 1200px;
+
+    margin: auto;
+
+    padding: 160px 24px;
+
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    align-items: center;
+
+    gap: 80px;
+}
+
+.product-content {
+    max-width: 550px;
+}
+
+.product-content > p:not(.eyebrow) {
+    font-size: 19px;
+
+    color: #6e6e73;
+
+    line-height: 1.6;
+}
+
+.request-demo {
+    border-radius: 25px;
+
+    overflow: hidden;
+
+    background: #f5f5f7;
+
+    box-shadow:
+        0 25px 70px rgba(0, 0, 0, 0.1);
+}
+
+.request-header {
+    padding: 20px 25px;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    border-bottom: 1px solid #ddd;
+
+    font-size: 12px;
+
+    font-weight: 600;
+
+    letter-spacing: 0.08em;
+}
+
+.status {
+    color: #34c759;
+}
+
+.request-body {
+    padding: 35px;
+
+    background: #111;
+
+    color: #ccc;
+
+    font-family:
+        "SFMono-Regular",
+        Consolas,
+        monospace;
+
+    font-size: 14px;
+
+    line-height: 1.8;
+}
+
+.method {
+    color: #0a84ff;
+
+    font-weight: 700;
+}
+
+.response-text {
+    color: #34c759;
+
+    font-weight: 700;
+}
+
+
+/* =========================================
+   TECHNOLOGY
+========================================= */
+
+.technology-section {
+    background: #f5f5f7;
+
+    padding: 140px 24px;
+}
+
+.center {
+    text-align: center;
+}
+
+.technology-grid {
+    max-width: 1000px;
+
+    margin: auto;
+
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    gap: 1px;
+
+    background: #d2d2d7;
+
+    border: 1px solid #d2d2d7;
+
+    border-radius: 25px;
+
+    overflow: hidden;
+}
+
+.technology-item {
+    background: #f5f5f7;
+
+    padding: 45px;
+}
+
+.number {
+    display: block;
+
+    font-size: 13px;
+
+    color: #888;
+
+    margin-bottom: 25px;
+}
+
+.technology-item h3 {
+    font-size: 28px;
+
+    letter-spacing: -0.025em;
+
+    margin-bottom: 12px;
+}
+
+.technology-item p {
+    color: #6e6e73;
+
+    line-height: 1.6;
+}
+
+
+/* =========================================
+   ABOUT
+========================================= */
+
+.about-section {
+    padding: 150px 24px;
+
+    background: white;
+}
+
+.about-box {
+    max-width: 900px;
+
+    margin: auto;
+
+    text-align: center;
+}
+
+.about-box > p:not(.eyebrow):not(.test-message) {
+    max-width: 650px;
+
+    margin: 0 auto 35px;
+
+    color: #6e6e73;
+
+    font-size: 19px;
+
+    line-height: 1.6;
+}
+
+.test-message {
+    margin-top: 20px;
+
+    font-size: 15px;
+
+    color: #34c759;
+}
+
+
+/* =========================================
+   FOOTER
+========================================= */
+
+footer {
+    background: #f5f5f7;
+
+    border-top: 1px solid #ddd;
+
+    padding: 50px 24px;
+}
+
+.footer-content {
+    max-width: 1200px;
+
+    margin: auto;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 20px;
+
+    flex-wrap: wrap;
+}
+
+.footer-logo {
+    width: 30px;
+    height: 30px;
+
+    border-radius: 50%;
+
+    background: #1d1d1f;
+
+    color: white;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    font-weight: 700;
+}
+
+.footer-content p {
+    color: #777;
+
+    font-size: 14px;
+}
+
+.copyright {
+    margin-left: auto;
+}
+
+
+/* =========================================
+   RESPONSIVE DESIGN
+========================================= */
+
+@media (max-width: 900px) {
+
+    .nav-links {
+        display: none;
+    }
+
+    .hero {
+        grid-template-columns: 1fr;
+
+        text-align: center;
+
+        padding-top: 80px;
+    }
+
+    .hero-content {
+        margin: auto;
+    }
+
+    .hero-description {
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .hero-buttons {
+        justify-content: center;
+    }
+
+    .features-grid {
+        grid-template-columns:
+            1fr 1fr;
+    }
+
+    .product-section {
+        grid-template-columns: 1fr;
+    }
+
+    .technology-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .copyright {
+        width: 100%;
+
+        margin-left: 0;
+    }
+}
+
+
+@media (max-width: 600px) {
+
+    .nav-container {
+        padding: 0 18px;
+    }
+
+    .hero {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+
+    .hero h1 {
+        font-size: 58px;
+    }
+
+    .hero-description {
+        font-size: 17px;
+    }
+
+    .server-screen {
+        min-height: 250px;
+
+        padding: 25px;
+
+        font-size: 13px;
+    }
+
+    .intro-section,
+    .product-section,
+    .about-section {
+        padding-top: 100px;
+        padding-bottom: 100px;
+    }
+
+    .features-section,
+    .technology-section {
+        padding-top: 100px;
+        padding-bottom: 100px;
+    }
+
+    .features-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .feature-card {
+        min-height: auto;
+    }
+
+    .technology-item {
+        padding: 30px;
+    }
+
+    .request-body {
+        padding: 25px;
+
+        font-size: 12px;
+    }
+
+    .footer-content {
+        align-items: flex-start;
+
+        flex-direction: column;
+    }
+}</style>
+</head>
+
+<body>
+
+    <!-- =========================
+         NAVIGATION BAR
+    ========================== -->
+
+    <header class="navbar">
+
+        <div class="nav-container">
+
+            <a href="#" class="logo">
+                C
+            </a>
+
+            <nav class="nav-links">
+
+                <a href="#home">Home</a>
+                <a href="#features">Features</a>
+                <a href="#technology">Technology</a>
+                <a href="#about">About</a>
+
+            </nav>
+
+            <a href="#technology" class="nav-button">
+                Explore
+            </a>
+
+        </div>
+
+    </header>
+
+
+    <!-- =========================
+         HERO SECTION
+    ========================== -->
+
+    <main>
+
+        <section class="hero" id="home">
+
+            <div class="hero-content">
+
+                <p class="eyebrow">
+                    BUILT IN C
+                </p>
+
+                <h1>
+                    Simple.
+                    <br>
+                    Fast.
+                    <br>
+                    Powerful.
+                </h1>
+
+                <p class="hero-description">
+                    A lightweight HTTP server built from the ground up
+                    using C, sockets and epoll.
+                </p>
+
+                <div class="hero-buttons">
+
+                    <a href="#features" class="primary-button">
+                        Explore the server
+                    </a>
+
+                    <a href="#technology" class="secondary-button">
+                        Learn more →
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <!-- Product-style server visual -->
+
+            <div class="server-visual">
+
+                <div class="server-card">
+
+                    <div class="server-top">
+
+                        <div class="window-buttons">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+
+                        <div class="server-title">
+                            C HTTP SERVER
+                        </div>
+
+                    </div>
+
+                    <div class="server-screen">
+
+                        <div class="terminal-line">
+                            <span class="green">$</span>
+                            ./server
+                        </div>
+
+                        <div class="terminal-line">
+                            Server started
+                        </div>
+
+                        <div class="terminal-line">
+                            Port: <span class="blue">8080</span>
+                        </div>
+
+                        <div class="terminal-line">
+                            Status:
+                            <span class="green">
+                                ONLINE
+                            </span>
+                        </div>
+
+                        <div class="terminal-line">
+                            Requests:
+                            <span id="requestCount">
+                                0
+                            </span>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =========================
+             INTRODUCTION
+        ========================== -->
+
+        <section class="intro-section">
+
+            <p class="eyebrow">
+                THE IDEA
+            </p>
+
+            <h2>
+                A web server,
+                <br>
+                built from scratch.
+            </h2>
+
+            <p class="section-description">
+                Instead of using a ready-made web server, this project
+                creates an HTTP server directly in C. It listens for
+                connections, processes HTTP requests and serves files
+                from the web root.
+            </p>
+
+        </section>
+
+
+        <!-- =========================
+             FEATURES
+        ========================== -->
+
+        <section class="features-section" id="features">
+
+            <div class="section-heading">
+
+                <p class="eyebrow">
+                    FEATURES
+                </p>
+
+                <h2>
+                    Small server.
+                    <br>
+                    Big ideas.
+                </h2>
+
+            </div>
+
+
+            <div class="features-grid">
+
+
+                <!-- Feature 1 -->
+
+                <article class="feature-card">
+
+                    <div class="feature-icon">
+                        ⚡
+                    </div>
+
+                    <h3>
+                        Fast
+                    </h3>
+
+                    <p>
+                        Uses non-blocking sockets and Linux epoll
+                        for efficient connection handling.
+                    </p>
+
+                </article>
+
+
+                <!-- Feature 2 -->
+
+                <article class="feature-card">
+
+                    <div class="feature-icon">
+                        ◉
+                    </div>
+
+                    <h3>
+                        Lightweight
+                    </h3>
+
+                    <p>
+                        No external web framework is required.
+                        The server is written directly in C.
+                    </p>
+
+                </article>
+
+
+                <!-- Feature 3 -->
+
+                <article class="feature-card">
+
+                    <div class="feature-icon">
+                        &lt;/&gt;
+                    </div>
+
+                    <h3>
+                        Simple
+                    </h3>
+
+                    <p>
+                        A clean architecture makes it easy to understand
+                        how HTTP requests and responses work.
+                    </p>
+
+                </article>
+
+
+                <!-- Feature 4 -->
+
+                <article class="feature-card">
+
+                    <div class="feature-icon">
+                        🔒
+                    </div>
+
+                    <h3>
+                        Safer
+                    </h3>
+
+                    <p>
+                        Basic path validation helps prevent directory
+                        traversal when serving files.
+                    </p>
+
+                </article>
+
+            </div>
+
+        </section>
+
+
+        <!-- =========================
+             PRODUCT SHOWCASE
+        ========================== -->
+
+        <section class="product-section">
+
+            <div class="product-content">
+
+                <p class="eyebrow">
+                    ENGINEERED FOR LEARNING
+                </p>
+
+                <h2>
+                    Understand what
+                    <br>
+                    happens behind the web.
+                </h2>
+
+                <p>
+                    Every browser request travels through the server,
+                    gets processed and receives a response. This project
+                    makes that process visible.
+                </p>
+
+            </div>
+
+
+            <div class="request-demo">
+
+                <div class="request-header">
+
+                    <span>
+                        HTTP REQUEST
+                    </span>
+
+                    <span class="status">
+                        200 OK
+                    </span>
+
+                </div>
+
+                <div class="request-body">
+
+                    <p>
+                        <span class="method">
+                            GET
+                        </span>
+                        /index.html
+                    </p>
+
+                    <p>
+                        Host: localhost:8080
+                    </p>
+
+                    <p>
+                        Connection: close
+                    </p>
+
+                    <br>
+
+                    <p class="response-text">
+                        HTTP/1.1 200 OK
+                    </p>
+
+                    <p>
+                        Content-Type: text/html
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =========================
+             TECHNOLOGY
+        ========================== -->
+
+        <section class="technology-section" id="technology">
+
+            <div class="section-heading center">
+
+                <p class="eyebrow">
+                    TECHNOLOGY
+                </p>
+
+                <h2>
+                    Built with
+                    <br>
+                    the fundamentals.
+                </h2>
+
+            </div>
+
+
+            <div class="technology-grid">
+
+                <div class="technology-item">
+
+                    <span class="number">
+                        01
+                    </span>
+
+                    <h3>
+                        C Language
+                    </h3>
+
+                    <p>
+                        The core server is written in C for direct
+                        control over memory, files and sockets.
+                    </p>
+
+                </div>
+
+
+                <div class="technology-item">
+
+                    <span class="number">
+                        02
+                    </span>
+
+                    <h3>
+                        TCP Sockets
+                    </h3>
+
+                    <p>
+                        Network sockets allow the browser and server
+                        to communicate over HTTP.
+                    </p>
+
+                </div>
+
+
+                <div class="technology-item">
+
+                    <span class="number">
+                        03
+                    </span>
+
+                    <h3>
+                        Linux epoll
+                    </h3>
+
+                    <p>
+                        epoll allows the server to efficiently monitor
+                        multiple file descriptors.
+                    </p>
+
+                </div>
+
+
+                <div class="technology-item">
+
+                    <span class="number">
+                        04
+                    </span>
+
+                    <h3>
+                        HTTP
+                    </h3>
+
+                    <p>
+                        The server understands basic HTTP GET requests
+                        and returns requested files.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =========================
+             ABOUT
+        ========================== -->
+
+        <section class="about-section" id="about">
+
+            <div class="about-box">
+
+                <p class="eyebrow">
+                    PROJECT
+                </p>
+
+                <h2>
+                    Built to understand.
+                    <br>
+                    Designed to be simple.
+                </h2>
+
+                <p>
+                    This project combines networking, operating systems,
+                    C programming and frontend development into one
+                    practical application.
+                </p>
+
+                <button
+                    class="primary-button"
+                    id="testButton">
+                    Test server
+                </button>
+
+                <p
+                    class="test-message"
+                    id="testMessage">
+                </p>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- =========================
+         FOOTER
+    ========================== -->
+
+    <footer>
+
+        <div class="footer-content">
+
+            <div class="footer-logo">
+                C
+            </div>
+
+            <p>
+                A simple HTTP server built in C.
+            </p>
+
+            <p class="copyright">
+                © 2026 C HTTP Server Project
+            </p>
+
+        </div>
+
+    </footer>
+
+
+    <script src="script.js"></script>
+
+</body>
+</html>
